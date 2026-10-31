@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>부산 2박 3일 여행 지도</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 레이아웃: 상단 히어로 → 3일 일정 카드 → 예산 막대 → 준비 팁 순서의 단일 열 흐름 */
+:root {
+  --bg: #F4F7F8;
+  --surface: #FFFFFF;
+  --fg: #0B2233;
+  --muted: #5B6B77;
+  --line: #D9E2E6;
+  --sea: #127C86;
+  --accent: #F0644A;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1A24;
+    --surface: #102631;
+    --fg: #E8F1F4;
+    --muted: #9AB0BB;
+    --line: #22404D;
+    --sea: #4FC3CE;
+    --accent: #FF8A70;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1A24;
+  --surface: #102631;
+  --fg: #E8F1F4;
+  --muted: #9AB0BB;
+  --line: #22404D;
+  --sea: #4FC3CE;
+  --accent: #FF8A70;
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 960px; margin: 0 auto; padding-block: 32px 48px; display: grid; gap: 24px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+.label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+
+/* 히어로 */
+.hero { display: grid; gap: 14px; padding: 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; }
+.hero h1 { font-family: "Black Han Sans", "Noto Sans KR", sans-serif; font-weight: 400; font-size: clamp(30px, 6vw, 46px); line-height: 1.15; }
+.hero h1 span { color: var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); color: var(--fg); }
+.chip b { color: var(--sea); }
+
+/* 경로 막대 */
+.route { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; position: relative; }
+.route div { text-align: center; font-weight: 700; font-size: 14px; padding-top: 22px; position: relative; min-width: 0; }
+.route div::before { content: ""; position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 12px; height: 12px; border-radius: 50%; background: var(--sea); }
+.route div::after { content: ""; position: absolute; top: 9px; left: 50%; width: 100%; height: 2px; background: var(--line); }
+.route div:last-child::after { display: none; }
+.route small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+
+/* 일정 카드 */
+.days { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.day h2 { font-size: 20px; }
+.day .theme { color: var(--sea); font-weight: 700; font-size: 13px; }
+.slots { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.slots li { display: grid; grid-template-columns: 56px 1fr; gap: 10px; font-size: 14px; min-width: 0; }
+.slots time { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; padding-top: 1px; }
+.slots strong { display: block; font-weight: 700; }
+.slots p { margin: 0; color: var(--muted); font-size: 13px; }
+.slots li.food strong { color: var(--accent); }
+
+/* 예산 */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; display: grid; gap: 16px; }
+.panel h2 { font-size: 20px; }
+.bar-row { display: grid; grid-template-columns: 84px 1fr 96px; gap: 12px; align-items: center; font-size: 14px; }
+.track { height: 14px; background: var(--bg); border-radius: 999px; overflow: hidden; border: 1px solid var(--line); }
+.fill { height: 100%; background: var(--sea); border-radius: 999px; }
+.fill.hot { background: var(--accent); }
+.amt { text-align: right; font-variant-numeric: tabular-nums; }
+.total { font-weight: 700; display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 12px; }
+.note { font-size: 12px; color: var(--muted); margin: 0; }
+
+/* 팁 */
+.tips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.tip { border-left: 3px solid var(--sea); padding: 10px 14px; background: var(--surface); border-radius: 0 12px 12px 0; min-width: 0; }
+.tip b { display: block; margin-bottom: 2px; }
+.tip span { font-size: 13px; color: var(--muted); }
+
+footer { font-size: 12px; color: var(--muted); text-align: center; }
+
+@media (max-width: 720px) {
+  .days, .tips { grid-template-columns: minmax(0, 1fr); }
+  .bar-row { grid-template-columns: 64px 1fr 80px; gap: 8px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fill { transition: width .6s ease; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <section class="hero">
+    <div class="label">2박 3일 · 부산 여행 계획</div>
+    <h1>바다와 골목을 잇는 <span>부산 사흘</span></h1>
+    <div class="chips">
+      <div class="chip">숙소 <b>해운대</b></div>
+      <div class="chip">이동 <b>대중교통 중심</b></div>
+      <div class="chip">1인 예산 <b>약 65만 원</b></div>
+      <div class="chip">추천 시기 <b>가을~초겨울</b></div>
+    </div>
+  </section>
+
+  <section class="route" aria-label="여행 경로 요약">
+    <div>1일차<small>해운대 · 기장 · 광안리</small></div>
+    <div>2일차<small>자갈치 · 감천 · 영도</small></div>
+    <div>3일차<small>태종대 · 송도 · 귀가</small></div>
+  </section>
+
+  <section class="days">
+    <article class="day">
+      <div>
+        <h2>1일차</h2>
+        <div class="theme">바다 사찰과 야경</div>
+      </div>
+      <ul class="slots">
+        <li><time>10:00</time><div><strong>부산역 도착, 짐 맡기기</strong><p>해운대 숙소 체크인은 오후 3시 이후가 일반적이에요.</p></div></li>
+        <li class="food"><time>12:00</time><div><strong>돼지국밥 점심</strong><p>부산 대표 음식, 부산역 근처에서 해결하기 좋아요.</p></div></li>
+        <li><time>14:00</time><div><strong>해동용궁사</strong><p>바닷가 절벽 위 사찰. 기장 방면 이동, 해안 풍경이 좋아요.</p></div></li>
+        <li><time>17:00</time><div><strong>해운대 해변 산책</strong><p>동백섬 누리마루 방향으로 걸으면 해질녘 바다가 예뻐요.</p></div></li>
+        <li class="food"><time>19:00</time><div><strong>해변 회 또는 포장마차</strong><p>가을 제철 해산물을 바다 근처에서 드세요.</p></div></li>
+        <li><time>21:00</time><div><strong>광안리 야경</strong><p>광안대교 조명을 보며 해변 산책으로 마무리해요.</p></div></li>
+      </ul>
+    </article>
+
+    <article class="day">
+      <div>
+        <h2>2일차</h2>
+        <div class="theme">시장과 골목 도시 탐방</div>
+      </div>
+      <ul class="slots">
+        <li class="food"><time>09:00</time><div><strong>자갈치시장 아침</strong><p>수산물 시장 구경과 아침 식사를 함께 해요.</p></div></li>
+        <li><time>11:00</time><div><strong>감천문화마을</strong><p>계단식 주택가와 벽화 골목. 편한 신발이 필수예요.</p></div></li>
+        <li class="food"><time>13:00</time><div><strong>씨앗호떡과 간식</strong><p>부평깡통시장 또는 국제시장 먹거리 투어.</p></div></li>
+        <li><time>15:00</time><div><strong>영도 흰여울문화마을</strong><p>바다와 맞닿은 골목 산책, 사진 명소예요.</p></div></li>
+        <li class="food"><time>18:00</time><div><strong>남포동 저녁</strong><p>BIFF 광장 주변에서 길거리 음식을 즐겨요.</p></div></li>
+        <li><time>20:00</time><div><strong>용두산공원 부산타워</strong><p>도심 야경을 한눈에 보는 마무리 코스예요.</p></div></li>
+      </ul>
+    </article>
+
+    <article class="day">
+      <div>
+        <h2>3일차</h2>
+        <div class="theme">바다 끝 풍경과 귀가</div>
+      </div>
+      <ul class="slots">
+        <li><time>08:00</time><div><strong>숙소 체크아웃</strong><p>짐은 보관 서비스를 이용하면 편해요.</p></div></li>
+        <li><time>09:00</time><div><strong>태종대 해안 산책</strong><p>자연 절벽과 등대. 순환 버스를 이용하면 편해요.</p></div></li>
+        <li class="food"><time>12:00</time><div><strong>밀면 점심</strong><p>여름 음식으로 알려졌지만 사시사철 인기 있는 부산 면 요리예요.</p></div></li>
+        <li><time>14:00</time><div><strong>송도 구름산책로와 해상케이블카</strong><p>바다 위를 건너는 체험, 날씨 확인 후 이동하세요.</p></div></li>
+        <li><time>17:00</time><div><strong>부산역 또는 김해공항 이동</strong><p>출발 2시간 전 도착을 권장해요.</p></div></li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="panel" aria-label="예산 구성">
+    <div>
+      <div class="label">예산 (1인 기준 추정)</div>
+      <h2>숙박이 가장 큰 비중이에요</h2>
+    </div>
+    <div class="bar-row"><span>숙박 2박</span><div class="track"><div class="fill" style="width:46%"></div></div><span class="amt">300,000원</span></div>
+    <div class="bar-row"><span>식비</span><div class="track"><div class="fill" style="width:28%"></div></div><span class="amt">180,000원</span></div>
+    <div class="bar-row"><span>교통</span><div class="track"><div class="fill" style="width:12%"></div></div><span class="amt">80,000원</span></div>
+    <div class="bar-row"><span>입장·체험</span><div class="track"><div class="fill hot" style="width:8%"></div></div><span class="amt">50,000원</span></div>
+    <div class="bar-row"><span>기타</span><div class="track"><div class="fill" style="width:6%"></div></div><span class="amt">40,000원</span></div>
+    <div class="total"><span>합계</span><span>650,000원</span></div>
+    <p class="note">KTX 등 왕복 교통비와 숙소 등급에 따라 달라지므로 출발 전 최신 요금을 확인하세요.</p>
+  </section>
+
+  <section class="panel" aria-label="준비 팁">
+    <div>
+      <div class="label">준비 팁</div>
+      <h2>가을 부산 여행 체크리스트</h2>
+    </div>
+    <div class="tips">
+      <div class="tip"><b>겉옷 준비</b><span>해변은 바람이 강해 낮에도 체감 온도가 낮아요.</span></div>
+      <div class="tip"><b>교통카드 하나로</b><span>지하철과 버스는 교통카드 하나로 이동해요.</span></div>
+      <div class="tip"><b>편한 신발</b><span>감천과 영도는 언덕과 계단이 많아요.</span></div>
+      <div class="tip"><b>휴무일 확인</b><span>시장과 관광지는 요일별 휴무가 있어 미리 확인하세요.</span></div>
+    </div>
+  </section>
+
+  <footer>운영 시간, 요금, 휴무는 변동될 수 있으니 방문 전 공식 안내를 확인하세요.</footer>
+</main>
+</body>
+</html>
